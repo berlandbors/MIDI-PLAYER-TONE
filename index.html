@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDI Player Pro - Enhanced Edition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 MIDI Player Pro - Enhanced Edition</h1>
+        <div class="subtitle">Powered by Tone.js • 128 Instruments • Professional Effects</div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="player">▶ Плеер</button>
+            <button class="tab" data-tab="export">📤 Экспорт</button>
+            <button class="tab" data-tab="import">📥 Создать</button>
+            <button class="tab" data-tab="record">🎙️ Запись</button>
+        </div>
+
+        <!-- TAB 1: ПЛЕЕР -->
+        <div class="tab-content active" id="player">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🎵</div>
+                <div class="upload-text">
+                    Нажмите или перетащите MIDI файл сюда
+                </div>
+            </div>
+            
+            <input type="file" id="fileInput" accept=".mid,.midi">
+            
+            <div class="file-info" id="fileInfo">
+                <div class="file-name" id="fileName"></div>
+                <div class="info-box" id="midiInfo"></div>
+                <div class="tempo-info" id="tempoInfo" style="display: none;"></div>
+            </div>
+
+            <div class="visualizer" id="visualizer">
+                <canvas id="canvas"></canvas>
+                <div class="viz-debug" id="vizDebug">Нот: 0</div>
+            </div>
+
+            <div class="visualization-mode" id="visualizationMode">
+                <button class="viz-btn selected" data-mode="bars">📊 Столбцы</button>
+                <button class="viz-btn" data-mode="wave">🌊 Волна</button>
+                <button class="viz-btn" data-mode="circle">⭕ Круг</button>
+            </div>
+
+            <!-- Селектор инструментов - ВСЕ 128 ИНСТРУМЕНТОВ GENERAL MIDI -->
+            <div class="instrument-selector" id="instrumentSelector">
+                <label for="instrumentType">🎼 Инструмент (General MIDI - 128 инструментов):</label>
+                <select id="instrumentType">
+                    <optgroup label="🎹 PIANO (0-7)">
+                        <option value="acoustic-grand-piano" selected>0: Acoustic Grand Piano</option>
+                        <option value="bright-acoustic-piano">1: Bright Acoustic Piano</option>
+                        <option value="electric-grand-piano">2: Electric Grand Piano</option>
+                        <option value="honky-tonk-piano">3: Honky-tonk Piano</option>
+                        <option value="electric-piano-1">4: Electric Piano 1</option>
+                        <option value="electric-piano-2">5: Electric Piano 2</option>
+                        <option value="harpsichord">6: Harpsichord</option>
+                        <option value="clavinet">7: Clavinet</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎼 CHROMATIC PERCUSSION (8-15)">
+                        <option value="celesta">8: Celesta</option>
+                        <option value="glockenspiel">9: Glockenspiel</option>
+                        <option value="music-box">10: Music Box</option>
+                        <option value="vibraphone">11: Vibraphone</option>
+                        <option value="marimba">12: Marimba</option>
+                        <option value="xylophone">13: Xylophone</option>
+                        <option value="tubular-bells">14: Tubular Bells</option>
+                        <option value="dulcimer">15: Dulcimer</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎹 ORGAN (16-23)">
+                        <option value="drawbar-organ">16: Drawbar Organ</option>
+                        <option value="percussive-organ">17: Percussive Organ</option>
+                        <option value="rock-organ">18: Rock Organ</option>
+                        <option value="church-organ">19: Church Organ</option>
+                        <option value="reed-organ">20: Reed Organ</option>
+                        <option value="accordion">21: Accordion</option>
+                        <option value="harmonica">22: Harmonica</option>
+                        <option value="tango-accordion">23: Tango Accordion</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎸 GUITAR (24-31)">
+                        <option value="nylon-string-guitar">24: Nylon String Guitar</option>
+                        <option value="steel-string-guitar">25: Steel String Guitar</option>
+                        <option value="jazz-guitar">26: Jazz Guitar</option>
+                        <option value="clean-guitar">27: Clean Guitar</option>
+                        <option value="muted-guitar">28: Muted Guitar</option>
+                        <option value="overdriven-guitar">29: Overdriven Guitar</option>
+                        <option value="distortion-guitar">30: Distortion Guitar</option>
+                        <option value="guitar-harmonics">31: Guitar Harmonics</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎸 BASS (32-39)">
+                        <option value="acoustic-bass">32: Acoustic Bass</option>
+                        <option value="fingered-bass">33: Fingered Bass</option>
+                        <option value="picked-bass">34: Picked Bass</option>
+                        <option value="fretless-bass">35: Fretless Bass</option>
+                        <option value="slap-bass-1">36: Slap Bass 1</option>
+                        <option value="slap-bass-2">37: Slap Bass 2</option>
+                        <option value="synth-bass-1">38: Synth Bass 1</option>
+                        <option value="synth-bass-2">39: Synth Bass 2</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎻 STRINGS (40-47)">
+                        <option value="violin">40: Violin</option>
+                        <option value="viola">41: Viola</option>
+                        <option value="cello">42: Cello</option>
+                        <option value="contrabass">43: Contrabass</option>
+                        <option value="tremolo-strings">44: Tremolo Strings</option>
+                        <option value="pizzicato-strings">45: Pizzicato Strings</option>
+                        <option value="orchestral-harp">46: Orchestral Harp</option>
+                        <option value="timpani">47: Timpani</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎼 ENSEMBLE (48-55)">
+                        <option value="string-ensemble-1">48: String Ensemble 1</option>
+                        <option value="string-ensemble-2">49: String Ensemble 2</option>
+                        <option value="synth-strings-1">50: Synth Strings 1</option>
+                        <option value="synth-strings-2">51: Synth Strings 2</option>
+                        <option value="choir-aahs">52: Choir Aahs</option>
+                        <option value="voice-oohs">53: Voice Oohs</option>
+                        <option value="synth-choir">54: Synth Choir</option>
+                        <option value="orchestra-hit">55: Orchestra Hit</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎺 BRASS (56-63)">
+                        <option value="trumpet">56: Trumpet</option>
+                        <option value="trombone">57: Trombone</option>
+                        <option value="tuba">58: Tuba</option>
+                        <option value="muted-trumpet">59: Muted Trumpet</option>
+                        <option value="french-horn">60: French Horn</option>
+                        <option value="brass-section">61: Brass Section</option>
+                        <option value="synth-brass-1">62: Synth Brass 1</option>
+                        <option value="synth-brass-2">63: Synth Brass 2</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎷 REED (64-71)">
+                        <option value="soprano-sax">64: Soprano Sax</option>
+                        <option value="alto-sax">65: Alto Sax</option>
+                        <option value="tenor-sax">66: Tenor Sax</option>
+                        <option value="baritone-sax">67: Baritone Sax</option>
+                        <option value="oboe">68: Oboe</option>
+                        <option value="english-horn">69: English Horn</option>
+                        <option value="bassoon">70: Bassoon</option>
+                        <option value="clarinet">71: Clarinet</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎶 PIPE (72-79)">
+                        <option value="piccolo">72: Piccolo</option>
+                        <option value="flute">73: Flute</option>
+                        <option value="recorder">74: Recorder</option>
+                        <option value="pan-flute">75: Pan Flute</option>
+                        <option value="blown-bottle">76: Blown Bottle</option>
+                        <option value="shakuhachi">77: Shakuhachi</option>
+                        <option value="whistle">78: Whistle</option>
+                        <option value="ocarina">79: Ocarina</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎹 SYNTH LEAD (80-87)">
+                        <option value="lead-square">80: Lead 1 (square)</option>
+                        <option value="lead-sawtooth">81: Lead 2 (sawtooth)</option>
+                        <option value="lead-calliope">82: Lead 3 (calliope)</option>
+                        <option value="lead-chiff">83: Lead 4 (chiff)</option>
+                        <option value="lead-charang">84: Lead 5 (charang)</option>
+                        <option value="lead-voice">85: Lead 6 (voice)</option>
+                        <option value="lead-fifths">86: Lead 7 (fifths)</option>
+                        <option value="lead-bass">87: Lead 8 (bass + lead)</option>
+                    </optgroup>
+                    
+                    <optgroup label="🎹 SYNTH PAD (88-95)">
+                        <option value="pad-new-age">88: Pad 1 (new age)</option>
+                        <option value="pad-warm">89: Pad 2 (warm)</option>
+                        <option value="pad-polysynth">90: Pad 3 (polysynth)</option>
+                        <option value="pad-choir">91: Pad 4 (choir)</option>
+                        <option value="pad-bowed">92: Pad 5 (bowed)</option>
+                        <option value="pad-metallic">93: Pad 6 (metallic)</option>
+                        <option value="pad-halo">94: Pad 7 (halo)</option>
+                        <option value="pad-sweep">95: Pad 8 (sweep)</option>
+                    </optgroup>
+                    
+                    <optgroup label="✨ SYNTH EFFECTS (96-103)">
+                        <option value="fx-rain">96: FX 1 (rain)</option>
+                        <option value="fx-soundtrack">97: FX 2 (soundtrack)</option>
+                        <option value="fx-crystal">98: FX 3 (crystal)</option>
+                        <option value="fx-atmosphere">99: FX 4 (atmosphere)</option>
+                        <option value="fx-brightness">100: FX 5 (brightness)</option>
+                        <option value="fx-goblins">101: FX 6 (goblins)</option>
+                        <option value="fx-echoes">102: FX 7 (echoes)</option>
+                        <option value="fx-sci-fi">103: FX 8 (sci-fi)</option>
+                    </optgroup>
+                    
+                    <optgroup label="🌍 ETHNIC (104-111)">
+                        <option value="sitar">104: Sitar</option>
+                        <option value="banjo">105: Banjo</option>
+                        <option value="shamisen">106: Shamisen</option>
+                        <option value="koto">107: Koto</option>
+                        <option value="kalimba">108: Kalimba</option>
+                        <option value="bagpipe">109: Bag pipe</option>
+                        <option value="fiddle">110: Fiddle</option>
+                        <option value="shanai">111: Shanai</option>
+                    </optgroup>
+                    
+                    <optgroup label="🥁 PERCUSSIVE (112-119)">
+                        <option value="tinkle-bell">112: Tinkle Bell</option>
+                        <option value="agogo">113: Agogo</option>
+                        <option value="steel-drums">114: Steel Drums</option>
+                        <option value="woodblock">115: Woodblock</option>
+                        <option value="taiko-drum">116: Taiko Drum</option>
+                        <option value="melodic-tom">117: Melodic Tom</option>
+                        <option value="synth-drum">118: Synth Drum</option>
+                        <option value="reverse-cymbal">119: Reverse Cymbal</option>
+                    </optgroup>
+                    
+                    <optgroup label="🔊 SOUND EFFECTS (120-127)">
+                        <option value="guitar-fret-noise">120: Guitar Fret Noise</option>
+                        <option value="breath-noise">121: Breath Noise</option>
+                        <option value="seashore">122: Seashore</option>
+                        <option value="bird-tweet">123: Bird Tweet</option>
+                        <option value="telephone-ring">124: Telephone Ring</option>
+                        <option value="helicopter">125: Helicopter</option>
+                        <option value="applause">126: Applause</option>
+                        <option value="gunshot">127: Gunshot</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Секция эффектов -->
+            <div class="effects-section" id="effectsSection">
+                <h3>🎛️ Аудио Эффекты</h3>
+                
+                <div class="effect-controls">
+                    <div class="effect-group">
+                        <label>
+                            <input type="checkbox" id="reverbEnabled" class="effect-toggle">
+                            🌊 Реверберация
+                        </label>
+                        <div class="effect-params" id="reverbParams" style="display: none;">
+                            <div class="slider-control-small">
+                                <span>Размер:</span>
+                                <input type="range" id="reverbDecay" min="0.1" max="10" value="2.5" step="0.1">
+                                <span id="reverbDecayValue">2.5</span>
+                            </div>
+                            <div class="slider-control-small">
+                                <span>Уровень:</span>
+                                <input type="range" id="reverbWet" min="0" max="100" value="30">
+                                <span id="reverbWetValue">30%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="effect-group">
+                        <label>
+                            <input type="checkbox" id="chorusEnabled" class="effect-toggle">
+                            🎵 Хорус
+                        </label>
+                        <div class="effect-params" id="chorusParams" style="display: none;">
+                            <div class="slider-control-small">
+                                <span>Глубина:</span>
+                                <input type="range" id="chorusDepth" min="0" max="1" value="0.5" step="0.01">
+                                <span id="chorusDepthValue">0.5</span>
+                            </div>
+                            <div class="slider-control-small">
+                                <span>Частота:</span>
+                                <input type="range" id="chorusFrequency" min="0.1" max="10" value="2.5" step="0.1">
+                                <span id="chorusFrequencyValue">2.5 Hz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="effect-group">
+                        <label>
+                            <input type="checkbox" id="delayEnabled" class="effect-toggle">
+                            ⏱️ Дилей
+                        </label>
+                        <div class="effect-params" id="delayParams" style="display: none;">
+                            <div class="slider-control-small">
+                                <span>Время:</span>
+                                <input type="range" id="delayTime" min="0.01" max="1" value="0.25" step="0.01">
+                                <span id="delayTimeValue">0.25s</span>
+                            </div>
+                            <div class="slider-control-small">
+                                <span>Повторы:</span>
+                                <input type="range" id="delayFeedback" min="0" max="0.9" value="0.3" step="0.01">
+                                <span id="delayFeedbackValue">0.3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="effect-group">
+                        <label>
+                            <input type="checkbox" id="distortionEnabled" class="effect-toggle">
+                            🔥 Дисторшн
+                        </label>
+                        <div class="effect-params" id="distortionParams" style="display: none;">
+                            <div class="slider-control-small">
+                                <span>Уровень:</span>
+                                <input type="range" id="distortionAmount" min="0" max="1" value="0.4" step="0.01">
+                                <span id="distortionAmountValue">0.4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-control" id="volumeControl">
+                <span class="slider-label">🔊 Громкость:</span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                <span class="slider-value" id="volumeValue">70%</span>
+            </div>
+
+            <div class="slider-control" id="tempoControl">
+                <span class="slider-label">⏱️ Темп:</span>
+                <input type="range" id="tempoSlider" min="25" max="300" value="100" step="5">
+                <span class="slider-value" id="tempoValue">100%</span>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="playBtn" disabled>
+                    <span>▶</span> Играть
+                </button>
+                <button id="pauseBtn" disabled>
+                    <span>⏸</span> Пауза
+                </button>
+                <button id="stopBtn" disabled>
+                    <span>⏹</span> Стоп
+                </button>
+            </div>
+            
+            <div class="status" id="status">Загрузите MIDI файл для начала</div>
+        </div>
+
+        <!-- TAB 2: ЭКСПОРТ -->
+        <div class="tab-content" id="export">
+            <div class="help-text">
+                <h3>📤 Экспорт MIDI в JSON/WAV</h3>
+                <p>Загрузите MIDI файл в плеере, затем выберите формат экспорта.</p>
+            </div>
+
+            <div class="controls">
+                <button id="exportJsonBtn" disabled>
+                    <span>📥</span> Экспортировать в JSON
+                </button>
+                <button id="exportWavBtn" class="secondary" disabled>
+                    <span>🎵</span> Экспортировать в WAV
+                </button>
+            </div>
+
+            <div class="json-editor">
+                <label>JSON данные:</label>
+                <textarea id="jsonOutput" placeholder="JSON данные появятся здесь после экспорта..." readonly></textarea>
+            </div>
+
+            <div class="controls">
+                <button id="downloadJsonBtn" class="secondary" disabled>
+                    <span>💾</span> Скачать JSON
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 3: СОЗДАТЬ MIDI -->
+        <div class="tab-content" id="import">
+            <div class="help-text">
+                <h3>📥 Создание MIDI из JSON</h3>
+                <p>Формат JSON:</p>
+                <code>{"tracks": [{"notes": [{"note": 60, "time": 0, "duration": 0.5, "velocity": 100}]}]}</code>
+                <p style="margin-top: 10px;"><strong>note:</strong> MIDI нота (60 = C4), <strong>time:</strong> время в секундах, <strong>duration:</strong> длительность, <strong>velocity:</strong> громкость (0-127)</p>
+            </div>
+
+            <div class="upload-area-small" id="jsonUploadArea">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">
+                    Нажмите или перетащите JSON файл сюда
+                </div>
+            </div>
+            
+            <input type="file" id="jsonFileInput" accept=".json">
+
+            <div class="json-editor">
+                <label>Или введите JSON вручную:</label>
+                <textarea id="jsonInput" placeholder='{"tracks": [{"notes": [{"note": 60, "time": 0, "duration": 0.5, "velocity": 100}]}]}'></textarea>
+            </div>
+
+            <div class="controls">
+                <button id="createMidiBtn">
+                    <span>🎵</span> Создать MIDI файл
+                </button>
+                <button id="previewMidiBtn" class="secondary">
+                    <span>▶</span> Предпросмотр
+                </button>
+            </div>
+
+            <div class="status" id="importStatus"></div>
+        </div>
+
+        <!-- TAB 4: ЗАПИСЬ -->
+        <div class="tab-content" id="record">
+            <div class="help-text">
+                <h3>🎙️ Запись в аудио файл</h3>
+                <p>Загрузите MIDI файл в плеере, затем нажмите "Начать запись" и "Играть". После окончания воспроизведения нажмите "Остановить запись".</p>
+            </div>
+
+            <div class="recording-indicator" id="recordingIndicator">
+                ⚫ Идет запись...
+            </div>
+
+            <div class="controls">
+                <button id="startRecordBtn" disabled>
+                    <span>⚫</span> Начать запись
+                </button>
+                <button id="stopRecordBtn" disabled>
+                    <span>⏹</span> Остановить запись
+                </button>
+            </div>
+
+            <div class="controls">
+                <button id="downloadAudioBtn" class="secondary" disabled>
+                    <span>💾</span> Скачать аудио (WAV)
+                </button>
+            </div>
+
+            <div class="status" id="recordStatus">Загрузите MIDI файл для начала записи</div>
+        </div>
+    </div>
+
+    <!-- Подключаем Tone.js из CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+    
+    <!-- Подключаем модули в правильном порядке -->
+    <script src="js/sampler-instruments.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/midi-parser.js"></script>
+    <script src="js/midi-writer.js"></script>
+    <script src="js/visualizer.js"></script>
+    <script src="js/audio-effects.js"></script>
+    <script src="js/midi-player.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
